@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
    <modelVersion>4.0.0</modelVersion>
 
@@ -8,15 +9,41 @@
   
    <properties>
       <japex.version>1.0.25</japex.version>
+      <jmeter.version>2.3.3</jmeter.version>
+      <junit.version>4.5</junit.version>
    </properties>
 
    <dependencies>
       <dependency>
          <groupId>com.sun.japex</groupId>
          <artifactId>japex</artifactId>
-         <version>1.0.25</version>
+         <version>${japex.version}</version>
+      </dependency>
+      <dependency>
+         <groupId>junit</groupId>
+         <artifactId>junit</artifactId>
+         <version>${junit.version}</version>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.jmeter</groupId>
+         <artifactId>jmeter-core</artifactId>
+         <version>${jmeter.version}</version>
       </dependency>
    </dependencies>
+
+   <repositories>
+      <repository>
+         <id>junitbench</id>
+         <name>JUnitBench Maven 2 Repository</name>
+         <url>http://junitbench.googlecode.com/svn/repo/maven2</url>
+         <snapshots>
+            <enabled>false</enabled>
+         </snapshots>
+         <releases>
+            <enabled>true</enabled>
+         </releases>
+      </repository>
+   </repositories>
 
    <build>
       <plugins>
