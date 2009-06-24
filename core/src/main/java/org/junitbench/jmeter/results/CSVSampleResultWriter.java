@@ -18,4 +18,9 @@ public class CSVSampleResultWriter implements SampleResultWriter
    {
       // TODO
    }
+
+   public void write()
+   {
+      // TODO
+   }
 }

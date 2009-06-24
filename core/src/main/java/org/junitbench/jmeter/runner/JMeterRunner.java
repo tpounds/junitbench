@@ -1,5 +1,6 @@
 package org.junitbench.jmeter.runner;
 
+import java.io.File;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -15,6 +16,8 @@ import org.apache.jmeter.samplers.SampleResult;
 
 import org.junitbench.jmeter.annotation.Sampler;
 import org.junitbench.jmeter.annotation.ThreadGroup;
+import org.junitbench.jmeter.results.JTLSampleResultWriter;
+import org.junitbench.jmeter.results.SampleResultWriter;
 import org.junitbench.runner.AbstractRunner;
 
 /**
@@ -26,8 +29,8 @@ public class JMeterRunner extends AbstractRunner
 
    public JMeterRunner(Class<?> clazz)
    {
-      // TODO: fix result writer
-      super(clazz, new org.junitbench.jmeter.results.JTLSampleResultWriter());
+      // FIXME: currently hardcoded to support maven and only JTL writer
+      super(clazz, new org.junitbench.jmeter.results.JTLSampleResultWriter(new File("target/surefire-reports/" + clazz.getName() + ".jtl")));
 
       // TODO: handle missing annotation
       ThreadGroup group = clazz.getAnnotation(ThreadGroup.class);
@@ -45,5 +48,5 @@ public class JMeterRunner extends AbstractRunner
    }
 
    @Override public Object createTestObject() throws Throwable
-      { return ThreadGroupInterceptor.create(clazz); }
+      { return ThreadGroupInterceptor.create(clazz, (SampleResultWriter) writer); }
 }
