@@ -1,123 +1,49 @@
 package org.junitbench.jmeter.runner;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.List;
 import java.util.ArrayList;
-import java.lang.annotation.Annotation;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.runner.Description;
-import org.junit.runner.Runner;
-import org.junit.runner.notification.RunNotifier;
-import org.junit.runners.BlockJUnit4ClassRunner;
-import org.junit.runners.model.FrameworkMethod;
-import org.junit.runners.model.InitializationError;
+import net.sf.cglib.proxy.Enhancer;
+import net.sf.cglib.proxy.MethodInterceptor;
+import net.sf.cglib.proxy.MethodProxy;
+
+import org.apache.jmeter.samplers.SampleResult;
 
 import org.junitbench.jmeter.annotation.Sampler;
 import org.junitbench.jmeter.annotation.ThreadGroup;
+import org.junitbench.runner.AbstractRunner;
+
 /**
  * @author Trevor Pounds
  */
-public class JMeterRunner extends BlockJUnit4ClassRunner
+public class JMeterRunner extends AbstractRunner
 {
-   private long samples = 1;
-   private long threads = 1;
+   private int loops = 1;
 
-   public JMeterRunner(Class<?> clazz) throws InitializationError
+   public JMeterRunner(Class<?> clazz)
    {
-      super(clazz);
+      // TODO: fix result writer
+      super(clazz, new org.junitbench.jmeter.results.JTLSampleResultWriter());
 
+      // TODO: handle missing annotation
       ThreadGroup group = clazz.getAnnotation(ThreadGroup.class);
-      this.samples = group.samples();
-      this.threads = group.threads();
+      if(group != null)
+         { this.loops = group.loops(); }
    }
 
-   protected List<FrameworkMethod> getAnnotatedMethods(Class<? extends Annotation> clazz)
-      { return super.getTestClass().getAnnotatedMethods(clazz); }
-
-   // XXX: use internal impl class?
-   @Override protected List<FrameworkMethod> computeTestMethods()
+   @Override public Method[] computeTestMethods() throws Throwable
    {
-      List<FrameworkMethod> methods = new ArrayList();
-      for(FrameworkMethod m : getAnnotatedMethods(Sampler.class))
+      Method m = ThreadGroupInterceptor.METHOD;
+      List<Method> methods = new ArrayList();
+      for(int i = 0; i < this.loops; i++)
          { methods.add(m); }
-      return methods;
+      return methods.toArray(new Method[0]);
    }
 
-   protected void doBeforeClass() throws Throwable
-   {
-      for(FrameworkMethod m : getAnnotatedMethods(BeforeClass.class))
-         { m.invokeExplosively(null); }
-   }
-
-   protected void doAfterClass() throws Throwable
-   {
-      for(FrameworkMethod m : getAnnotatedMethods(AfterClass.class))
-         { m.invokeExplosively(null); }
-   }
-
-   protected void doBefore(Object obj) throws Throwable
-   {
-      for(FrameworkMethod m : getAnnotatedMethods(Before.class))
-         { m.invokeExplosively(obj); }
-   }
-
-   protected void doAfter(Object obj) throws Throwable
-   {
-      for(FrameworkMethod m : getAnnotatedMethods(After.class))
-         { m.invokeExplosively(obj); }
-   }
-
-   @Override public void run(RunNotifier notifier)
-   {
-try
-{
-      doBeforeClass();
-      List<FrameworkMethod> methods = computeTestMethods();
-      for(int i = 0; i < samples; i++)
-      {
-         Description sampleDesc = Description.createTestDescription(super.getTestClass().getJavaClass(), "Sample " + i);
-         notifier.fireTestStarted(sampleDesc);
-
-         Object obj = super.createTest();
-         doBefore(obj);
-         for(FrameworkMethod m : methods)
-         {
-            try
-            {
-               long start = System.nanoTime();
-               m.invokeExplosively(obj);
-               long elapsedTime = System.nanoTime() - start;
-System.out.println("Sample" + i + ", " + m.getName() + ", " + elapsedTime);
-//               SampleResult result = new SampleResult.createTestSample(start, end);
-//               result.setSampleLabel();
-//               result.setSuccessful();
-//               result.setTimeStamp();
-//               result.setThreadName();
-            }
-            catch(Throwable t)
-               { t.printStackTrace(); } // TODO
-         }
-         doAfter(obj);
-
-         // TODO: aggregate results
-
-         notifier.fireTestFinished(sampleDesc);
-      }
-}
-catch(Throwable t)
-   { t.printStackTrace(); }
-finally
-{
-   try
-      { doAfterClass(); }
-   catch(Throwable t)
-      { t.printStackTrace(); }
-}
-   }
-
-   @Override public int testCount()
-      { return 1; }
+   @Override public Object createTestObject() throws Throwable
+      { return ThreadGroupInterceptor.create(clazz); }
 }

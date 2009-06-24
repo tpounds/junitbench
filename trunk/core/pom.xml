@@ -8,12 +8,18 @@
    <version>0.1.0-SNAPSHOT</version>
   
    <properties>
+      <cglib.version>2.2</cglib.version>
       <japex.version>1.0.25</japex.version>
       <jmeter.version>2.3.3</jmeter.version>
       <junit.version>4.5</junit.version>
    </properties>
 
    <dependencies>
+      <dependency>
+         <groupId>cglib</groupId>
+         <artifactId>cglib</artifactId>
+         <version>${cglib.version}</version>
+      </dependency>
       <dependency>
          <groupId>com.sun.japex</groupId>
          <artifactId>japex</artifactId>
