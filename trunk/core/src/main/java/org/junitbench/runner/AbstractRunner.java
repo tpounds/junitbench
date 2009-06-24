@@ -20,7 +20,7 @@ import org.junitbench.reflect.ClassHelper;
 public abstract class AbstractRunner extends Runner
 {
    protected Class clazz = null;
-   private ResultWriter writer = null;
+   protected ResultWriter writer = null;
 
    public AbstractRunner(Class<?> clazz, ResultWriter writer)
    {
@@ -60,7 +60,7 @@ public abstract class AbstractRunner extends Runner
          catch(Throwable t)
             { t.printStackTrace(); }
 
-         // TODO: write results
+         writer.write();
       }
    }
 

@@ -32,7 +32,7 @@
       </dependency>
       <dependency>
          <groupId>org.apache.jmeter</groupId>
-         <artifactId>jmeter-core</artifactId>
+         <artifactId>jmeter</artifactId>
          <version>${jmeter.version}</version>
       </dependency>
    </dependencies>

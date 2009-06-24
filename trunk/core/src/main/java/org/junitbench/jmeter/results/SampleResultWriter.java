@@ -8,6 +8,4 @@ public interface SampleResultWriter extends ResultWriter
 {
    public void addResult(SampleResult results);
    public void addResults(SampleResult[] results);
-
-//   public void write();
 }

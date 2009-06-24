@@ -13,6 +13,7 @@ import org.apache.jmeter.samplers.SampleResult;
 
 import org.junitbench.jmeter.annotation.Sampler;
 import org.junitbench.jmeter.annotation.ThreadGroup;
+import org.junitbench.jmeter.results.SampleResultWriter;
 import org.junitbench.reflect.ClassHelper;
 
 /**
@@ -20,12 +21,16 @@ import org.junitbench.reflect.ClassHelper;
  */
 public class ThreadGroupInterceptor implements MethodInterceptor
 {
+   public interface INTERFACE { public void __INTERNAL_RUNNER__(); }
    public static Method METHOD = null;
 
-   protected interface ThreadGroupInterface { public void __INTERNAL_RUNNER__(); }
+   private SampleResultWriter writer = null;
 
-   public static Object create(Class<?> clazz)
-      { return Enhancer.create(clazz, new Class[] { ThreadGroupInterface.class }, new ThreadGroupInterceptor()); }
+   public ThreadGroupInterceptor(SampleResultWriter writer)
+      { this.writer = writer; }
+
+   public static Object create(Class<?> clazz, SampleResultWriter writer)
+      { return Enhancer.create(clazz, new Class[] { INTERFACE.class }, new ThreadGroupInterceptor(writer)); }
 
    public Object intercept(Object obj, Method method, Object[] args, MethodProxy proxy) throws Throwable
    {
@@ -36,19 +41,36 @@ public class ThreadGroupInterceptor implements MethodInterceptor
          final Class<?> testClass  = obj.getClass().getSuperclass();
          final Object   testObject = obj;
 
-         Thread threadGroup = testClass.getAnnotation(ThreadGroup.class);
+         ThreadGroup threadGroup = testClass.getAnnotation(ThreadGroup.class);
          ExecutorService service = Executors.newFixedThreadPool(threadGroup.threads());
          for(int i = 0; i < threadGroup.threads(); i++)
          {
+            final String threadName = "thread-" + i;
             service.execute(new Runnable()
             {
                public void run()
                {
                   try
                   {
-                     // TODO: timing code
                      for(Method m : ClassHelper.getDeclaredMethods(testClass, Sampler.class))
-                        { m.invoke(testObject, null); }
+                     {
+                        SampleResult result = new SampleResult();
+                        try
+                        {
+                           result.setSampleLabel(testClass.getName() + "." + m.getName());
+                           result.setThreadName(threadName);
+                           result.sampleStart();
+                           m.invoke(testObject, null);
+                           result.setSuccessful(true);
+                        }
+                        catch(Throwable t)
+                           { result.setSuccessful(false); }
+                        finally
+                        {
+                           result.sampleEnd();
+                           writer.addResult(result);
+                        }
+                     }
                   }
                   catch(Throwable t)
                      { t.printStackTrace(); }
@@ -69,7 +91,7 @@ public class ThreadGroupInterceptor implements MethodInterceptor
    static
    {
       try
-         { METHOD = ThreadGroupInterface.class.getDeclaredMethod("__INTERNAL_RUNNER__", null); }
+         { METHOD = INTERFACE.class.getDeclaredMethod("__INTERNAL_RUNNER__", null); }
       catch(NoSuchMethodException e)
          { e.printStackTrace(); }
    }
