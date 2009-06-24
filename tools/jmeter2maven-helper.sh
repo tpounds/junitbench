@@ -17,5 +17,11 @@ for jar in `ls $artifact-$version/lib/ext | grep .jar`; do
    mvn install:install-file -DgroupId=$groupId -DartifactId=$artifactId -Dversion=$version -DgeneratePom=true -DcreateChecksum=true -Dpackaging=jar -DlocalRepositoryId=local -DlocalRepositoryPath=$repo -Dfile=$artifact-$version/lib/ext/$jar
 done
 
+mvn install:install-file -DgroupId=$groupId -DartifactId=jorphan -Dversion=$version -DgeneratePom=true -DcreateChecksum=true -Dpackaging=jar -DlocalRepositoryId=local -DlocalRepositoryPath=$repo -Dfile=$artifact-$version/lib/jorphan.jar
+
+sed "s/@JMETER_VERSION@/$version/" jmeter-template.pom > jmeter-$version.pom
+
+mvn install -f jmeter-$version.pom
+
 #svn add $repo/*
 #svn ci -m "add jmeter $version maven artifacts" $repo
