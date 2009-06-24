@@ -1,5 +1,7 @@
 package org.junitbench.jmeter.results;
 
+import javax.xml.parsers.DocumentBuilderFactory;
+
 import org.apache.jmeter.samplers.SampleResult;
 
 import org.w3c.dom.Document;
@@ -13,7 +15,10 @@ public class JTLSampleResultWriter implements SampleResultWriter
 
    public JTLSampleResultWriter()
    {
-      //jtlDoc = // FACTORY
+      try
+         { jtlDoc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument(); }
+      catch(Exception e)
+         { /*TODO*/ }
       Element testResults = jtlDoc.createElement("testResults");
       testResults.setAttribute("version", JTL_VERSION);
       jtlDoc.appendChild(testResults);
@@ -21,6 +26,7 @@ public class JTLSampleResultWriter implements SampleResultWriter
 
    public void addResult(SampleResult result)
    {
+System.out.println(result.getTime() + " " + result.getTimeStamp() + " " + result.getSampleLabel() + " " + result.isSuccessful());
       Element sample = jtlDoc.createElement("sample");
       sample.setAttribute("t",  Long.toString(result.getTime()));
       sample.setAttribute("ts", Long.toString(result.getTimeStamp()));
