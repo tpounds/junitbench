@@ -34,6 +34,7 @@
          <groupId>org.apache.jmeter</groupId>
          <artifactId>jmeter</artifactId>
          <version>${jmeter.version}</version>
+         <type>pom</type>
       </dependency>
    </dependencies>
 
