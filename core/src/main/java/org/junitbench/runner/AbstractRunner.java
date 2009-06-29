@@ -37,16 +37,16 @@ public abstract class AbstractRunner extends Runner
    {
       try
       {
-         doBeforeClasses();
+         doBeforeClasses(clazz);
          for(Method m : computeTestMethods())
          {
             Description sampleDesc = Description.createTestDescription(clazz, "TODO");
             notifier.fireTestStarted(sampleDesc);
 
             Object obj = createTestObject();
-            doBefores(obj);
+            doBefores(clazz, obj);
             m.invoke(obj, null);
-            doAfters(obj);
+            doAfters(clazz, obj);
 
             notifier.fireTestFinished(sampleDesc);
          }
@@ -56,7 +56,7 @@ public abstract class AbstractRunner extends Runner
       finally
       {
          try
-            { doAfterClasses(); }
+            { doAfterClasses(clazz); }
          catch(Throwable t)
             { t.printStackTrace(); }
 
@@ -64,25 +64,25 @@ public abstract class AbstractRunner extends Runner
       }
    }
 
-   public void doAfterClasses() throws Throwable
+   public void doAfterClasses(Class<?> clazz) throws Throwable
    {
       for(Method m : ClassHelper.getDeclaredMethods(clazz, AfterClass.class))
          { m.invoke(null, null); }
    }
 
-   public void doBeforeClasses() throws Throwable
+   public void doBeforeClasses(Class<?> clazz) throws Throwable
    {
       for(Method m : ClassHelper.getDeclaredMethods(clazz, BeforeClass.class))
          { m.invoke(null, null); }
    }
 
-   public void doAfters(Object obj) throws Throwable
+   public void doAfters(Class<?> clazz, Object obj) throws Throwable
    {
       for(Method m : ClassHelper.getDeclaredMethods(clazz, After.class))
          { m.invoke(obj, null); }
    }
 
-   public void doBefores(Object obj) throws Throwable
+   public void doBefores(Class<?> clazz, Object obj) throws Throwable
    {
       for(Method m : ClassHelper.getDeclaredMethods(clazz, Before.class))
          { m.invoke(obj, null); }
