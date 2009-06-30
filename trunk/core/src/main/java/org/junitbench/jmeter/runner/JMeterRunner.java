@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.TimeUnit;
 
@@ -18,10 +19,6 @@ import net.sf.cglib.proxy.MethodProxy;
 
 import org.apache.jmeter.samplers.SampleResult;
 
-//import org.junit.After;
-//import org.junit.AfterClass;
-//import org.junit.Before;
-//import org.junit.BeforeClass;
 import org.junit.runner.Description;
 import org.junit.runner.Runner;
 import org.junit.runner.notification.Failure;
@@ -40,28 +37,14 @@ import org.junitbench.runner.AbstractRunner;
 public class JMeterRunner extends AbstractRunner
 {
    private Class<?> clazz = null;
+   private SampleResultWriter writer = null;
 
    public JMeterRunner(Class<?> clazz)
    {
-      // FIXME: currently hardcoded to support maven and only JTL writer
-      super(clazz, new org.junitbench.jmeter.results.JTLSampleResultWriter(new File("target/surefire-reports/" + clazz.getName() + ".jtl")));
-
       this.clazz = clazz;
+      // FIXME: currently hardcoded to support maven and only JTL writer
+      this.writer = new org.junitbench.jmeter.results.JTLSampleResultWriter(new File("target/surefire-reports/" + clazz.getName() + ".jtl"));
    }
-
-   @Override public Method[] computeTestMethods() throws Throwable
-   {
-/*
-      Method m = ThreadGroupInterceptor.METHOD;
-      List<Method> methods = new ArrayList();
-      for(int i = 0; i < this.loops; i++)
-         { methods.add(m); }
-*/
-      return null;
-   }
-
-   @Override public Object createTestObject() throws Throwable
-      { return ThreadGroupInterceptor.create(clazz, (SampleResultWriter) writer); }
 
    public void run(RunNotifier notifier)
    {
@@ -84,21 +67,21 @@ public class JMeterRunner extends AbstractRunner
             doBeforeClasses(this.clazz);
 
             Class<?>[] classes = ClassHelper.getDeclaredClasses(this.clazz, ThreadGroup.class);
-            ExecutorService service = Executors.newFixedThreadPool(classes.length);
+            ThreadPoolExecutor pool = (ThreadPoolExecutor) Executors.newFixedThreadPool(classes.length);
             for(final Class<?> memberClass : classes)
             {
                final RunNotifier memberNotifier = notifier;
-               service.execute(new Runnable()
+               pool.execute(new Runnable()
                {
                   public void run()
                      { runThreadGroup(memberClass, memberNotifier); }
                });
             }
-            service.shutdown();
-            if(!service.awaitTermination(Long.MAX_VALUE, TimeUnit.MILLISECONDS))
+            pool.shutdown();
+            if(!pool.awaitTermination(Long.MAX_VALUE, TimeUnit.MILLISECONDS))
             {
-               List<Runnable> incompleteTasks = service.shutdownNow();
-               throw new TimeoutException("Thread Group timed out after " + Long.MAX_VALUE + "ms with " + incompleteTasks.size() + " incomplete sampler(s)!");
+               pool.shutdownNow();
+               throw new TimeoutException("Thread Group timed out after " + Long.MAX_VALUE + "ms with " + pool.getActiveCount() + " incomplete thread group(s)!");
             }
          }
          catch(Throwable t)
@@ -112,7 +95,7 @@ public class JMeterRunner extends AbstractRunner
          }
       }
 
-      ((SampleResultWriter) writer).write();
+      writer.write();
    }
 
    protected void runThreadGroup(Class<?> testClass, RunNotifier notifier)
@@ -133,7 +116,7 @@ public class JMeterRunner extends AbstractRunner
                runLoop(testClass, testObject, notifier);
             }
             catch(Throwable t)
-               {/*XXX: ignore?*/}
+               { throw t; }
             finally
                { doAfters(testClass, testObject); }
          }
@@ -149,7 +132,7 @@ public class JMeterRunner extends AbstractRunner
       }
    }
 
-   protected void runLoop(final Class<?> testClass, final Object testObject, RunNotifier notifier) throws Throwable
+   protected void runLoop(final Class<?> testClass, final Object testObject, RunNotifier notifier)
    {
       Description desc = Description.createTestDescription(testClass, "Thread Group Loop");
 
@@ -158,11 +141,11 @@ public class JMeterRunner extends AbstractRunner
          notifier.fireTestStarted(desc);
 
          ThreadGroup threadGroup = testClass.getAnnotation(ThreadGroup.class);
-         ExecutorService service = Executors.newFixedThreadPool(threadGroup.threads());
+         ThreadPoolExecutor pool = (ThreadPoolExecutor) Executors.newFixedThreadPool(threadGroup.threads());
          for(int i = 0; i < threadGroup.threads(); i++)
          {
             final String threadName = "thread-" + i;
-            service.execute(new Runnable()
+            pool.execute(new Runnable()
             {
                public void run()
                {
@@ -182,18 +165,18 @@ public class JMeterRunner extends AbstractRunner
                      finally
                      {
                         result.sampleEnd();
-                        ((SampleResultWriter) writer).addResult(result);
+                        writer.addResult(result);
                      }
                   }
                }
             });
-            Thread.sleep(threadGroup.rampUpPeriod());
+            Thread.sleep(threadGroup.rampUpPeriod() / threadGroup.threads());
          }
-         service.shutdown();
-         if(!service.awaitTermination(threadGroup.timeout(), TimeUnit.MILLISECONDS))
+         pool.shutdown();
+         if(!pool.awaitTermination(threadGroup.timeout(), TimeUnit.MILLISECONDS))
          {
-            List<Runnable> incompleteTasks = service.shutdownNow();
-            throw new TimeoutException("Loop timed out after " + threadGroup.timeout() + "ms with " + incompleteTasks.size() + " incomplete sampler(s)!");
+            pool.shutdownNow();
+            throw new TimeoutException("Loop timed out after " + threadGroup.timeout() + "ms with " + pool.getActiveCount() + " incomplete sampler(s)!");
          }
       }
       catch(Throwable t)
