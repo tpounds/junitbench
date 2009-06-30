@@ -2,20 +2,13 @@ package org.junitbench.jmeter.runner;
 
 import java.io.File;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.TimeUnit;
-
-import net.sf.cglib.proxy.Enhancer;
-import net.sf.cglib.proxy.MethodInterceptor;
-import net.sf.cglib.proxy.MethodProxy;
 
 import org.apache.jmeter.samplers.SampleResult;
 
@@ -66,7 +59,7 @@ public class JMeterRunner extends AbstractRunner
          {
             doBeforeClasses(this.clazz);
 
-            Class<?>[] classes = ClassHelper.getDeclaredClasses(this.clazz, ThreadGroup.class);
+            Class<?>[] classes = ClassHelper.getClasses(this.clazz, ThreadGroup.class);
             ThreadPoolExecutor pool = (ThreadPoolExecutor) Executors.newFixedThreadPool(classes.length);
             for(final Class<?> memberClass : classes)
             {
@@ -149,7 +142,7 @@ public class JMeterRunner extends AbstractRunner
             {
                public void run()
                {
-                  for(Method m : ClassHelper.getDeclaredMethods(testClass, Sampler.class))
+                  for(Method m : ClassHelper.getMethods(testClass, Sampler.class))
                   {
                      SampleResult result = new SampleResult();
                      try
