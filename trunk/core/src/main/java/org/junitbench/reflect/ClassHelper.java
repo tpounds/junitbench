@@ -11,6 +11,17 @@ import java.util.List;
  */
 public class ClassHelper
 {
+   public static Class<?>[] getClasses(Class<?> clazz, Class<? extends Annotation> annotation)
+   {
+      List<Class<?>> classes = new ArrayList();
+      for(Class<?> c : clazz.getClasses())
+      {
+         if(hasAnnotation(c, annotation))
+            { classes.add(c); }
+      }
+      return classes.toArray(new Class<?>[0]);
+   }
+
    public static Class<?>[] getDeclaredClasses(Class<?> clazz, Class<? extends Annotation> annotation)
    {
       List<Class<?>> classes = new ArrayList();
@@ -20,6 +31,17 @@ public class ClassHelper
             { classes.add(c); }
       }
       return classes.toArray(new Class<?>[0]);
+   }
+
+   public static Method[] getMethods(Class<?> clazz, Class<? extends Annotation> annotation)
+   {
+      List<Method> methods = new ArrayList();
+      for(Method m : clazz.getMethods())
+      {
+         if(hasAnnotation(m, annotation))
+            { methods.add(m); }
+      }
+      return methods.toArray(new Method[0]);
    }
 
    public static Method[] getDeclaredMethods(Class<?> clazz, Class<? extends Annotation> annotation)
