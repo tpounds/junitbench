@@ -1,4 +1,4 @@
-package org.junitbench.jmeter.annotation;
+package org.junitbench;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
@@ -11,11 +11,7 @@ import java.lang.annotation.Target;
  */
 @Inherited
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.TYPE})
-public @interface ThreadGroup
+@Target({ElementType.METHOD})
+public @interface Sampler
 {
-   int  loops()        default 1;
-   long rampUpPeriod() default 0;
-   int  threads()      default 1;
-   long timeout()      default Long.MAX_VALUE;
 }

@@ -5,12 +5,14 @@ import org.junit.AfterClass;
 //import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
 
-import org.junitbench.jmeter.annotation.ThreadGroup;
-import org.junitbench.jmeter.annotation.Sampler;
-import org.junitbench.jmeter.runner.JMeterRunner;
+import org.junitbench.ThreadGroup;
+import org.junitbench.Sampler;
+import org.junitbench.runner.ThreadGroupSuiteRunner;
 
-@RunWith(JMeterRunner.class)
+@RunWith(ThreadGroupSuiteRunner.class)
+@Suite.SuiteClasses({NestedThreadGroupTest.ThreadGroup1.class, NestedThreadGroupTest.ThreadGroup2.class, NestedThreadGroupTest.ThreadGroup3.class})
 public class NestedThreadGroupTest
 {
    @BeforeClass public static void startBeforeClass()
