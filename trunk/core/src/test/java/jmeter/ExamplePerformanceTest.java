@@ -6,11 +6,11 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 
-import org.junitbench.jmeter.annotation.ThreadGroup;
-import org.junitbench.jmeter.annotation.Sampler;
-import org.junitbench.jmeter.runner.JMeterRunner;
+import org.junitbench.ThreadGroup;
+import org.junitbench.Sampler;
+import org.junitbench.runner.ThreadGroupRunner;
 
-@RunWith(JMeterRunner.class)
+@RunWith(ThreadGroupRunner.class)
 @ThreadGroup(loops=10, threads=10, rampUpPeriod=100)
 public class ExamplePerformanceTest
 {
