@@ -16,5 +16,6 @@ import org.junitbench.result.ResultType;
 @Target({ElementType.TYPE})
 public @interface GenerateResults
 {
-   ResultType[] value() default ResultType.STDOUT;
+   ResultType[] value();
+   String directory() default ".";
 }
