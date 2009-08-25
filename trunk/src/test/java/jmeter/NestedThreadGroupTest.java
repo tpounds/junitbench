@@ -58,7 +58,7 @@ public class NestedThreadGroupTest
 
       @After public void sleep() throws Throwable
       {
-         System.out.println("XXXX: sleep");
+         System.out.println("@After");
          Thread.sleep(2000);
       }
    }

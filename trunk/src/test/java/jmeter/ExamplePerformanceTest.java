@@ -15,37 +15,23 @@ import org.junitbench.runner.ThreadGroupRunner;
 public class ExamplePerformanceTest
 {
    @BeforeClass public static void startBeforeClass()
-   {
-System.out.println("@BeforeClass");
-   }
+      { System.out.println("@BeforeClass"); }
 
    @AfterClass public static void stopAfterClass()
-   {
-System.out.println("@AfterClass");
-   }
+      { System.out.println("@AfterClass"); }
 
    @Before public void stopBefore()
-   {
-System.out.println("@Before");
-   }
+      { System.out.println("@Before"); }
 
    @After public void stopAfter()
-   {
-System.out.println("@After");
-   }
+      { System.out.println("@After"); }
 
    @Sampler public void sampler1()
-   {
-System.out.println("sampler1");
-   }
+      { System.out.println("sampler1"); }
 
    @Sampler public void sampler2()
-   {
-System.out.println("sampler2");
-   }
+      { System.out.println("sampler2"); }
 
    @Sampler public void sampler3()
-   {
-System.out.println("sampler3");
-   }
+      { System.out.println("sampler3"); }
 }

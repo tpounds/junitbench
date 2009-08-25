@@ -30,14 +30,20 @@ public class ThreadGroupRunner extends AbstractRunner
    private ResultWriter results = null;
 
    public ThreadGroupRunner(Class<?> clazz)
+      { this(clazz, null); }
+
+   protected ThreadGroupRunner(Class<?> clazz, GenerateResults generateResults)
    {
       this.clazz = clazz;
+      this.results = results;
 
-      GenerateResults genResults = this.clazz.getAnnotation(GenerateResults.class);
-      if(genResults == null)
-         { results = new ResultWriter(this.clazz.getName(), ResultType.STDOUT); }
+      if(this.clazz.isAnnotationPresent(GenerateResults.class))
+         { generateResults = this.clazz.getAnnotation(GenerateResults.class); }
+
+      if(generateResults != null)
+         { results = new ResultWriter(generateResults.directory(), this.clazz.getName(), generateResults.value()); }
       else
-         { results = new ResultWriter(this.clazz.getName(), genResults.value()); }
+         { results = new ResultWriter(".", this.clazz.getName(), ResultType.STDOUT); }
    }
 
    public void run(RunNotifier notifier)

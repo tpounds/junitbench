@@ -11,6 +11,7 @@ import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.Suite;
 
+import org.junitbench.GenerateResults;
 import org.junitbench.Sampler;
 import org.junitbench.ThreadGroup;
 import org.junitbench.reflect.ClassHelper;
@@ -47,7 +48,7 @@ public class ThreadGroupSuiteRunner extends AbstractRunner
                public void run()
                {
                   // TODO: synchronized notifier?
-                  Runner tgRunner = new ThreadGroupRunner(memberClass);
+                  Runner tgRunner = new ThreadGroupRunner(memberClass, clazz.getAnnotation(GenerateResults.class));
                   tgRunner.run(memberNotifier);
                }
             });
