@@ -66,6 +66,7 @@ public class ThreadGroupRunner extends AbstractRunner
             finally
                { doAfters(this.clazz, testObject); }
          }
+         results.output();
       }
       catch(Throwable t)
          { notifier.fireTestFailure(new Failure(desc, t)); }
@@ -90,7 +91,7 @@ public class ThreadGroupRunner extends AbstractRunner
          ThreadPoolExecutor pool = (ThreadPoolExecutor) Executors.newFixedThreadPool(threadGroup.threads());
          for(int i = 0; i < threadGroup.threads(); i++)
          {
-            final int threadNumber = i;
+            final String threadID = "thread-" + i;
             pool.execute(new Runnable()
             {
                public void run()
@@ -107,9 +108,10 @@ public class ThreadGroupRunner extends AbstractRunner
                      {
                         long totalTime = System.nanoTime() - startTime;
                         result.ID = testClass.getName() + "." + m.getName();
-                        result.threadNumber = threadNumber;
+                        result.threadID = threadID;
                         result.error = false;
                         result.time = totalTime;
+//                        result.timeStamp = System.currentTimeMillis();
                         results.add(result);
                      }
                   }
@@ -123,7 +125,6 @@ public class ThreadGroupRunner extends AbstractRunner
             pool.shutdownNow();
             throw new TimeoutException("Loop timed out after " + threadGroup.timeout() + "ms with " + pool.getActiveCount() + " incomplete sampler(s)!");
          }
-         results.output();
       }
       catch(Throwable t)
          { notifier.fireTestFailure(new Failure(desc, t)); }

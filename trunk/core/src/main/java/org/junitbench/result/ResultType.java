@@ -3,7 +3,7 @@ package org.junitbench.result;
 public enum ResultType
 {
    CSV,
-   JMeter,
-   None,
+   JMETER,
+   NONE,
    STDOUT
 }
