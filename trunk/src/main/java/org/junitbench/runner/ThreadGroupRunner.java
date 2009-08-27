@@ -65,7 +65,7 @@ public class ThreadGroupRunner extends AbstractRunner
             try
             {
                doBefores(this.clazz, testObject);
-               runLoop(this.clazz, testObject, notifier);
+               runLoop(this.clazz, testObject, notifier, i);
             }
             catch(Throwable t)
                { throw t; }
@@ -85,7 +85,7 @@ public class ThreadGroupRunner extends AbstractRunner
       }
    }
 
-   protected void runLoop(final Class<?> testClass, final Object testObject, RunNotifier notifier)
+   protected void runLoop(final Class<?> testClass, final Object testObject, final RunNotifier notifier, final int iteration)
    {
       Description desc = Description.createTestDescription(testClass, "Thread Group Loop");
 
@@ -113,8 +113,9 @@ public class ThreadGroupRunner extends AbstractRunner
                      finally
                      {
                         long totalTime = System.nanoTime() - startTime;
-                        result.ID = testClass.getName() + "." + m.getName();
+                        result.samplerID = testClass.getName() + "." + m.getName();
                         result.threadID = threadID;
+                        result.iteration = iteration;
                         result.error = false;
                         result.time = totalTime;
 //                        result.timeStamp = System.currentTimeMillis();

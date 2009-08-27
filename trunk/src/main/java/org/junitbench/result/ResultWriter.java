@@ -31,7 +31,7 @@ public class ResultWriter
       {
          switch(type)
          {
-            case CSV:    /*TODO*/ break;
+            case CSV:    new CSVResultWriter().doOutput(); break;
             case JMETER: new JMeterResultWriter().doOutput(); break;
             case NONE:   /*ignore*/ break;
             case STDOUT: new STDOUTResultWriter().doOutput(); break;
@@ -41,7 +41,24 @@ public class ResultWriter
 
    protected class CSVResultWriter
    {
-      // TODO:
+      private final static String HEADER = "sampler,thread,iteration,time,error\n";
+
+      private void doOutput() throws Throwable
+      {
+         StringBuilder sb = new StringBuilder(HEADER);
+         for(Result r : ResultWriter.this.results)
+         {
+            sb.append(r.samplerID + ",");
+            sb.append(r.threadID + ",");
+            sb.append(r.iteration + ",");
+            sb.append(r.time + ",");
+//            sb.append(r.timeStamp + ",");
+            sb.append(r.error);
+            sb.append("\n");
+         }
+
+         new FileOutputStream(new File(directory, instanceName + ".csv")).write(sb.toString().getBytes());
+      }
    }
 
    protected class JMeterResultWriter
@@ -56,8 +73,8 @@ public class ResultWriter
          for(Result r : ResultWriter.this.results)
          {
             sb.append("<sampleResult");
-            sb.append(" lb=\"" + r.ID + "\"");
-            sb.append(" tn=\"" + r.threadID + "\"");
+            sb.append(" lb=\"" + r.samplerID + "\"");
+            sb.append(" tn=\"" + r.threadID + "-" + r.iteration + "\"");
             sb.append(" t=\"" + r.time + "\"");
 //            sb.append(" ts=\"" + r.timeStamp + "\"");
             sb.append(" s=\"" + r.error + "\"");
@@ -76,7 +93,7 @@ public class ResultWriter
          for(Result r : ResultWriter.this.results)
          {
             // TODO: aggregate summary
-            System.out.println("ID: " + r.ID + ", threadID: " + r.threadID + ", time: " + r.time + ", error: " + r.error);
+            System.out.println("ID: " + r.samplerID + ", threadID: " + r.threadID + ", iteration: " + r.iteration + ", time: " + r.time + ", error: " + r.error);
          }
       }
    }
