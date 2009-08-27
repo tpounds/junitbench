@@ -2,8 +2,9 @@ package org.junitbench.result;
 
 public class Result
 {
-   public String  ID;       // i.e. sampler name
-   public String  threadID; // i.e. thread number
+   public String  samplerID;
+   public String  threadID;
+   public int     iteration;
    public boolean error;
 //   public String  errorMessage;
    public long    time;
