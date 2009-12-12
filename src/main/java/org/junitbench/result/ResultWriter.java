@@ -51,7 +51,11 @@ public class ResultWriter
          csv = new File(clazz.getAnnotation(ResultsTo.CSV.class).value());
          
          if(csv.getName().endsWith(".csv"))
-            { csv.getParentFile().mkdirs(); }
+         {
+            File parent = csv.getParentFile();
+            if(parent != null)
+               { parent.mkdirs(); }
+         }
          else
          {
             csv.mkdirs();
@@ -92,7 +96,11 @@ public class ResultWriter
          jtl = new File(clazz.getAnnotation(ResultsTo.JMeter.class).value());
          
          if(jtl.getName().endsWith(".jtl"))
-            { jtl.getParentFile().mkdirs(); }
+         {
+            File parent = jtl.getParentFile();
+            if(parent != null)
+               { parent.mkdirs(); }
+         }
          else
          {
             jtl.mkdirs();
