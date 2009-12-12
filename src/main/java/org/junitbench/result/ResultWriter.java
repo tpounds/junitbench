@@ -2,22 +2,19 @@ package org.junitbench.result;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.PrintStream;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.junitbench.ResultsTo;
+
 public class ResultWriter
 {
-   String directory = null;
-   String instanceName = null;
-   ResultType[] types = null;
+   Class<?>[]   classes = null;
    List<Result> results = new LinkedList();
 
-   public ResultWriter(String directory, String instanceName, ResultType... types)
-   {
-      this.directory = directory;
-      this.instanceName = instanceName;
-      this.types = types;
-   }
+   public ResultWriter(Class<?>... classes)
+      { this.classes = classes; }
 
    public void add(Result... results)
    {
@@ -27,23 +24,42 @@ public class ResultWriter
 
    public void output() throws Throwable
    {
-      for(ResultType type : types)
+      for(Class<?> clazz : classes)
       {
-         switch(type)
-         {
-            case CSV:    new CSVResultWriter().doOutput(); break;
-            case JMETER: new JMeterResultWriter().doOutput(); break;
-            case NONE:   /*ignore*/ break;
-            case STDOUT: new STDOUTResultWriter().doOutput(); break;
-         }
+         if(clazz.isAnnotationPresent(ResultsTo.CSV.class))
+            { new CSV(clazz).output(); }
+         if(clazz.isAnnotationPresent(ResultsTo.JMeter.class))
+            { new JMeter(clazz).output(); }
+         if(clazz.isAnnotationPresent(ResultsTo.STDERR.class))
+            { new STD(System.err).output(); }
+         if(clazz.isAnnotationPresent(ResultsTo.STDOUT.class))
+            { new STD(System.out).output(); }
       }
    }
 
-   protected class CSVResultWriter
-   {
-      private final static String HEADER = "sampler,thread,iteration,time,error\n";
+   protected interface ResultWriterImpl
+      { public void output() throws Throwable; }
 
-      private void doOutput() throws Throwable
+   protected class CSV implements ResultWriterImpl
+   {
+      private final static String HEADER = "Sampler ID,Thread ID,Iteration,Elapsed Time (ns),Elapsed Time (ms),Start Time (ms),End Time (ms),Error Occured?,Error Message\n";
+
+      private File csv = null;
+
+      public CSV(Class<?> clazz)
+      {
+         csv = new File(clazz.getAnnotation(ResultsTo.CSV.class).value());
+         
+         if(csv.getName().endsWith(".csv"))
+            { csv.getParentFile().mkdirs(); }
+         else
+         {
+            csv.mkdirs();
+            csv = new File(csv, clazz.getName() + ".csv");
+         }
+      }
+
+      public void output() throws Throwable
       {
          StringBuilder sb = new StringBuilder(HEADER);
          for(Result r : ResultWriter.this.results)
@@ -51,22 +67,40 @@ public class ResultWriter
             sb.append(r.samplerID + ",");
             sb.append(r.threadID + ",");
             sb.append(r.iteration + ",");
-            sb.append(r.time + ",");
-//            sb.append(r.timeStamp + ",");
-            sb.append(r.error);
+            sb.append(r.elapsedTime + ",");
+            sb.append((r.endTimeStamp - r.startTimeStamp) + ",");
+            sb.append(r.startTimeStamp + ",");
+            sb.append(r.endTimeStamp + ",");
+            sb.append(r.error + ",");
+            sb.append(r.errorMessage);
             sb.append("\n");
          }
 
-         new FileOutputStream(new File(directory, instanceName + ".csv")).write(sb.toString().getBytes());
+         new FileOutputStream(csv).write(sb.toString().getBytes());
       }
    }
 
-   protected class JMeterResultWriter
+   protected class JMeter implements ResultWriterImpl
    {
       private final static String START_ROOT_ELEMENT = "<testResults version=\"1.2\">";
       private final static String END_ROOT_ELEMENT   = "</testResults>";
 
-      private void doOutput() throws Throwable
+      private File jtl = null;
+
+      public JMeter(Class<?> clazz)
+      {
+         jtl = new File(clazz.getAnnotation(ResultsTo.JMeter.class).value());
+         
+         if(jtl.getName().endsWith(".jtl"))
+            { jtl.getParentFile().mkdirs(); }
+         else
+         {
+            jtl.mkdirs();
+            jtl = new File(jtl, clazz.getName() + ".jtl");
+         }
+      }
+
+      public void output() throws Throwable
       {
          StringBuilder sb = new StringBuilder("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
          sb.append(START_ROOT_ELEMENT);
@@ -75,25 +109,32 @@ public class ResultWriter
             sb.append("<sampleResult");
             sb.append(" lb=\"" + r.samplerID + "\"");
             sb.append(" tn=\"" + r.threadID + "-" + r.iteration + "\"");
-            sb.append(" t=\"" + r.time + "\"");
-//            sb.append(" ts=\"" + r.timeStamp + "\"");
+            sb.append(" t=\"" + (r.endTimeStamp - r.startTimeStamp) + "\""); // JMeter only supports millisecond durations
+            sb.append(" t_nano=\"" + r.elapsedTime + "\"");                  // write nano durations to custom attribute
+            sb.append(" ts=\"" + r.endTimeStamp + "\"");
             sb.append(" s=\"" + r.error + "\"");
+            // TODO: what attribute should hold error message?
             sb.append("/>");
          }
          sb.append(END_ROOT_ELEMENT);
 
-         new FileOutputStream(new File(directory, instanceName + ".jtl")).write(sb.toString().getBytes());
+         new FileOutputStream(jtl).write(sb.toString().getBytes());
       }
    }
 
-   protected class STDOUTResultWriter
+   protected class STD implements ResultWriterImpl
    {
-      private void doOutput()
+      private PrintStream out = null;
+
+      public STD(PrintStream out)
+         { this.out = out; }
+
+      public void output()
       {
          for(Result r : ResultWriter.this.results)
          {
             // TODO: aggregate summary
-            System.out.println("ID: " + r.samplerID + ", threadID: " + r.threadID + ", iteration: " + r.iteration + ", time: " + r.time + ", error: " + r.error);
+            out.println("ID: " + r.samplerID + ", threadID: " + r.threadID + ", iteration: " + r.iteration + ", elapsed time (ns): " + r.elapsedTime + ", error: " + r.error);
          }
       }
    }

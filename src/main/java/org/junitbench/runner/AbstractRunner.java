@@ -18,7 +18,7 @@ public abstract class AbstractRunner extends Runner
 {
    public Description getDescription()
    {
-      // TODO
+      // XXX: what do I put here?
       return null;
    }
 

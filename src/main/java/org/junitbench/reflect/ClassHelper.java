@@ -16,7 +16,7 @@ public class ClassHelper
       List<Class<?>> classes = new ArrayList();
       for(Class<?> c : clazz.getClasses())
       {
-         if(hasAnnotation(c, annotation))
+         if(c.isAnnotationPresent(annotation))
             { classes.add(c); }
       }
       return classes.toArray(new Class<?>[0]);
@@ -27,7 +27,7 @@ public class ClassHelper
       List<Class<?>> classes = new ArrayList();
       for(Class<?> c : clazz.getDeclaredClasses())
       {
-         if(hasAnnotation(c, annotation))
+         if(c.isAnnotationPresent(annotation))
             { classes.add(c); }
       }
       return classes.toArray(new Class<?>[0]);
@@ -38,7 +38,7 @@ public class ClassHelper
       List<Method> methods = new ArrayList();
       for(Method m : clazz.getMethods())
       {
-         if(hasAnnotation(m, annotation))
+         if(m.isAnnotationPresent(annotation))
             { methods.add(m); }
       }
       return methods.toArray(new Method[0]);
@@ -49,16 +49,9 @@ public class ClassHelper
       List<Method> methods = new ArrayList();
       for(Method m : clazz.getDeclaredMethods())
       {
-         if(hasAnnotation(m, annotation))
+         if(m.isAnnotationPresent(annotation))
             { methods.add(m); }
       }
       return methods.toArray(new Method[0]);
-   }
-
-   public static boolean hasAnnotation(AnnotatedElement element, Class<? extends Annotation> annotation)
-   {
-      if(element.getAnnotation(annotation) != null)
-         { return true; }
-      return false;
    }
 }
