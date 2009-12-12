@@ -12,14 +12,11 @@ import org.junit.runner.Runner;
 import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunNotifier;
 
-import org.junitbench.GenerateResults;
 import org.junitbench.Sampler;
 import org.junitbench.ThreadGroup;
 import org.junitbench.reflect.ClassHelper;
 import org.junitbench.result.Result;
-import org.junitbench.result.ResultType;
 import org.junitbench.result.ResultWriter;
-import org.junitbench.runner.AbstractRunner;
 
 /**
  * @author Trevor Pounds
@@ -32,18 +29,10 @@ public class ThreadGroupRunner extends AbstractRunner
    public ThreadGroupRunner(Class<?> clazz)
       { this(clazz, null); }
 
-   protected ThreadGroupRunner(Class<?> clazz, GenerateResults generateResults)
+   protected ThreadGroupRunner(Class<?> clazz, Class<?> parent)
    {
       this.clazz = clazz;
-      this.results = results;
-
-      if(this.clazz.isAnnotationPresent(GenerateResults.class))
-         { generateResults = this.clazz.getAnnotation(GenerateResults.class); }
-
-      if(generateResults != null)
-         { results = new ResultWriter(generateResults.directory(), this.clazz.getName(), generateResults.value()); }
-      else
-         { results = new ResultWriter(".", this.clazz.getName(), ResultType.STDOUT); }
+      this.results = (parent != null) ? new ResultWriter(clazz, parent) : new ResultWriter(clazz);
    }
 
    public void run(RunNotifier notifier)
@@ -105,6 +94,7 @@ public class ThreadGroupRunner extends AbstractRunner
                   for(Method m : ClassHelper.getMethods(testClass, Sampler.class))
                   {
                      Result result = new Result();
+                     result.startTimeStamp = System.currentTimeMillis();
                      long startTime = System.nanoTime();
                      try
                         { m.invoke(testObject, null); }
@@ -112,13 +102,12 @@ public class ThreadGroupRunner extends AbstractRunner
                         { result.error = true; }
                      finally
                      {
-                        long totalTime = System.nanoTime() - startTime;
+                        result.elapsedTime = System.nanoTime() - startTime;
+                        result.endTimeStamp = System.currentTimeMillis();
                         result.samplerID = testClass.getName() + "." + m.getName();
                         result.threadID = threadID;
                         result.iteration = iteration;
                         result.error = false;
-                        result.time = totalTime;
-//                        result.timeStamp = System.currentTimeMillis();
                         results.add(result);
                      }
                   }
