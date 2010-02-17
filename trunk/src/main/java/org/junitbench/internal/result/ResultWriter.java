@@ -1,4 +1,4 @@
-package org.junitbench.result;
+package org.junitbench.internal.result;
 
 import java.io.File;
 import java.io.FileOutputStream;

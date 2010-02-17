@@ -1,4 +1,4 @@
-package org.junitbench.runner;
+package org.junitbench.internal.runner;
 
 import java.lang.reflect.Method;
 
@@ -9,7 +9,7 @@ import org.junit.BeforeClass;
 import org.junit.runner.Description;
 import org.junit.runner.Runner;
 
-import org.junitbench.reflect.ClassHelper;
+import org.junitbench.internal.reflect.ClassHelper;
 
 /**
  * @author Trevor Pounds

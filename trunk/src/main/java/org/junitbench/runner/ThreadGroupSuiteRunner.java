@@ -11,6 +11,8 @@ import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.Suite;
 
+import org.junitbench.internal.runner.AbstractRunner;
+
 /**
  * @author Trevor Pounds
  */
