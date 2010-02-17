@@ -11,19 +11,19 @@ import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.Suite;
 
-import org.junitbench.internal.runners.AbstractJUnitBenchRunner;
+import org.junitbench.internal.runners.EmptyJUnit4xRunner;
 
 /**
  * @author Trevor Pounds
  */
-public class ThreadGroupSuiteRunner extends AbstractJUnitBenchRunner
+public class ThreadGroupSuiteRunner extends EmptyJUnit4xRunner
 {
    private Class<?> clazz = null;
 
-   public ThreadGroupSuiteRunner(Class<?> clazz)
+   public ThreadGroupSuiteRunner(final Class<?> clazz)
       { this.clazz = clazz; }
 
-   public void run(RunNotifier notifier)
+   @Override public void run(final RunNotifier notifier)
    {
       // TODO: check for invalid configurations?
       Description desc = Description.createTestDescription(this.clazz, "Thread Group Suite Runner");

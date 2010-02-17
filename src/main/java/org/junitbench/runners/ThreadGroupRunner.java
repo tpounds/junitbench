@@ -17,26 +17,26 @@ import org.junitbench.ThreadGroup;
 import org.junitbench.internal.reflect.ClassHelper;
 import org.junitbench.internal.result.Result;
 import org.junitbench.internal.result.ResultWriter;
-import org.junitbench.internal.runners.AbstractJUnitBenchRunner;
+import org.junitbench.internal.runners.EmptyJUnit4xRunner;
 
 /**
  * @author Trevor Pounds
  */
-public class ThreadGroupRunner extends AbstractJUnitBenchRunner
+public class ThreadGroupRunner extends EmptyJUnit4xRunner
 {
    private Class<?> clazz = null;
    private ResultWriter results = null;
 
-   public ThreadGroupRunner(Class<?> clazz)
+   public ThreadGroupRunner(final Class<?> clazz)
       { this(clazz, null); }
 
-   protected ThreadGroupRunner(Class<?> clazz, Class<?> parent)
+   protected ThreadGroupRunner(final Class<?> clazz, final Class<?> parent)
    {
       this.clazz = clazz;
       this.results = (parent != null) ? new ResultWriter(clazz, parent) : new ResultWriter(clazz);
    }
 
-   public void run(RunNotifier notifier)
+   @Override public void run(final RunNotifier notifier)
    {
       Description desc = Description.createTestDescription(this.clazz, "Thread Group Runner");
 
