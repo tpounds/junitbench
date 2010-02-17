@@ -1,4 +1,4 @@
-package org.junitbench.runner;
+package org.junitbench.runners;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -11,12 +11,12 @@ import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.Suite;
 
-import org.junitbench.internal.runner.AbstractRunner;
+import org.junitbench.internal.runners.AbstractJUnitBenchRunner;
 
 /**
  * @author Trevor Pounds
  */
-public class ThreadGroupSuiteRunner extends AbstractRunner
+public class ThreadGroupSuiteRunner extends AbstractJUnitBenchRunner
 {
    private Class<?> clazz = null;
 
