@@ -10,7 +10,7 @@ import org.junit.runner.RunWith;
 
 import org.junitbench.ThreadGroup;
 import org.junitbench.Sampler;
-import org.junitbench.runner.ThreadGroupRunner;
+import org.junitbench.runners.ThreadGroupRunner;
 
 /**
  * @author Trevor Pounds

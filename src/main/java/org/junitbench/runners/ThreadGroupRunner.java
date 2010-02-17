@@ -1,4 +1,4 @@
-package org.junitbench.runner;
+package org.junitbench.runners;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -17,12 +17,12 @@ import org.junitbench.ThreadGroup;
 import org.junitbench.internal.reflect.ClassHelper;
 import org.junitbench.internal.result.Result;
 import org.junitbench.internal.result.ResultWriter;
-import org.junitbench.internal.runner.AbstractRunner;
+import org.junitbench.internal.runners.AbstractJUnitBenchRunner;
 
 /**
  * @author Trevor Pounds
  */
-public class ThreadGroupRunner extends AbstractRunner
+public class ThreadGroupRunner extends AbstractJUnitBenchRunner
 {
    private Class<?> clazz = null;
    private ResultWriter results = null;

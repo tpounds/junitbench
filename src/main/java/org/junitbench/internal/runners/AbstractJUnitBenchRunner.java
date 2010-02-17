@@ -1,4 +1,4 @@
-package org.junitbench.internal.runner;
+package org.junitbench.internal.runners;
 
 import java.lang.reflect.Method;
 
@@ -14,7 +14,7 @@ import org.junitbench.internal.reflect.ClassHelper;
 /**
  * @author Trevor Pounds
  */
-public abstract class AbstractRunner extends Runner
+public abstract class AbstractJUnitBenchRunner extends Runner
 {
    public Description getDescription()
    {
