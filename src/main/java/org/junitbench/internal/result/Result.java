@@ -1,4 +1,4 @@
-package org.junitbench.result;
+package org.junitbench.internal.result;
 
 public class Result
 {

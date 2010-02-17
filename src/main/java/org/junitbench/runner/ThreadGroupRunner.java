@@ -14,9 +14,10 @@ import org.junit.runner.notification.RunNotifier;
 
 import org.junitbench.Sampler;
 import org.junitbench.ThreadGroup;
-import org.junitbench.reflect.ClassHelper;
-import org.junitbench.result.Result;
-import org.junitbench.result.ResultWriter;
+import org.junitbench.internal.reflect.ClassHelper;
+import org.junitbench.internal.result.Result;
+import org.junitbench.internal.result.ResultWriter;
+import org.junitbench.internal.runner.AbstractRunner;
 
 /**
  * @author Trevor Pounds
