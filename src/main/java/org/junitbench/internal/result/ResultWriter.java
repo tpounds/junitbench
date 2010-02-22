@@ -6,7 +6,7 @@ import java.io.PrintStream;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.junitbench.ResultsTo;
+import org.junitbench.Results;
 
 public class ResultWriter
 {
@@ -26,13 +26,13 @@ public class ResultWriter
    {
       for(Class<?> clazz : classes)
       {
-         if(clazz.isAnnotationPresent(ResultsTo.CSV.class))
+         if(clazz.isAnnotationPresent(Results.CSV.class))
             { new CSV(clazz).output(); }
-         if(clazz.isAnnotationPresent(ResultsTo.JMeter.class))
+         if(clazz.isAnnotationPresent(Results.JMeter.class))
             { new JMeter(clazz).output(); }
-         if(clazz.isAnnotationPresent(ResultsTo.STDERR.class))
+         if(clazz.isAnnotationPresent(Results.STDERR.class))
             { new STD(System.err).output(); }
-         if(clazz.isAnnotationPresent(ResultsTo.STDOUT.class))
+         if(clazz.isAnnotationPresent(Results.STDOUT.class))
             { new STD(System.out).output(); }
       }
    }
@@ -48,7 +48,7 @@ public class ResultWriter
 
       public CSV(Class<?> clazz)
       {
-         csv = new File(clazz.getAnnotation(ResultsTo.CSV.class).value());
+         csv = new File(clazz.getAnnotation(Results.CSV.class).value());
          
          if(csv.getName().endsWith(".csv"))
          {
@@ -93,7 +93,7 @@ public class ResultWriter
 
       public JMeter(Class<?> clazz)
       {
-         jtl = new File(clazz.getAnnotation(ResultsTo.JMeter.class).value());
+         jtl = new File(clazz.getAnnotation(Results.JMeter.class).value());
          
          if(jtl.getName().endsWith(".jtl"))
          {

@@ -9,7 +9,8 @@ import java.lang.annotation.Target;
 /**
  * @author Trevor Pounds
  */
-public class ResultsTo
+@Target({})
+public @interface Results
 {
    @Inherited
    @Retention(RetentionPolicy.RUNTIME)
