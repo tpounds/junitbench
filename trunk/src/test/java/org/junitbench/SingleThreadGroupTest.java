@@ -6,10 +6,10 @@ import static org.junit.Assert.*;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import org.junitbench.ThreadGroup;
-import org.junitbench.Sampler;
 import org.junitbench.runners.ThreadGroupRunner;
 
 /**
@@ -42,12 +42,12 @@ public class SingleThreadGroupTest
    @After public void doAfter()
       { afterCalls.incrementAndGet(); }
 
-   @Sampler public void sampler1()
+   @Test public void sampler1()
       { sampler1Calls.incrementAndGet(); }
 
-   @Sampler public void sampler2()
+   @Test public void sampler2()
       { sampler2Calls.incrementAndGet(); }
 
-   @Sampler public void sampler3()
+   @Test public void sampler3()
       { sampler3Calls.incrementAndGet(); }
 }

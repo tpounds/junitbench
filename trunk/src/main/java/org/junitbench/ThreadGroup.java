@@ -18,15 +18,4 @@ public @interface ThreadGroup
    long rampUpPeriod() default 0;
    int  threads()      default 1;
    long timeout()      default Long.MAX_VALUE;
-
-   @Inherited
-   @Retention(RetentionPolicy.RUNTIME)
-   @Target({ElementType.TYPE})
-   public @interface Shmoo
-   {
-      int[] loops()        default {1 /*min*/, 1 /*max*/, 1 /*step*/};
-      long  rampUpPeriod() default 0;
-      int[] threads()      default {1 /*min*/, 1 /*max*/, 1 /*step*/};
-      long  timeout()      default Long.MAX_VALUE;
-   }
 }

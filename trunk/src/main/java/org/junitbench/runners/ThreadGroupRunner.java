@@ -7,12 +7,12 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.TimeUnit;
 
+import org.junit.Test;
 import org.junit.runner.Description;
 import org.junit.runner.Runner;
 import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunNotifier;
 
-import org.junitbench.Sampler;
 import org.junitbench.ThreadGroup;
 import org.junitbench.internal.reflect.ClassHelper;
 import org.junitbench.internal.result.Result;
@@ -92,7 +92,7 @@ public class ThreadGroupRunner extends EmptyJUnit4xRunner
             {
                public void run()
                {
-                  for(Method m : ClassHelper.getMethods(testClass, Sampler.class))
+                  for(Method m : ClassHelper.getMethods(testClass, Test.class))
                   {
                      Result result = new Result();
                      result.startTimeStamp = System.currentTimeMillis();
