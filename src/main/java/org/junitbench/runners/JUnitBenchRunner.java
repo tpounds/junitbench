@@ -13,7 +13,8 @@ import org.junit.runner.Runner;
 import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunNotifier;
 
-import org.junitbench.ThreadGroup;
+import org.junitbench.Loops;
+import org.junitbench.Threads;
 import org.junitbench.internal.reflect.ClassHelper;
 import org.junitbench.internal.result.Result;
 import org.junitbench.internal.result.ResultWriter;
@@ -22,15 +23,15 @@ import org.junitbench.internal.runners.EmptyJUnit4xRunner;
 /**
  * @author Trevor Pounds
  */
-public class ThreadGroupRunner extends EmptyJUnit4xRunner
+public class JUnitBenchRunner extends EmptyJUnit4xRunner
 {
    private Class<?> clazz = null;
    private ResultWriter results = null;
 
-   public ThreadGroupRunner(final Class<?> clazz)
+   public JUnitBenchRunner(final Class<?> clazz)
       { this(clazz, null); }
 
-   protected ThreadGroupRunner(final Class<?> clazz, final Class<?> parent)
+   protected JUnitBenchRunner(final Class<?> clazz, final Class<?> parent)
    {
       this.clazz = clazz;
       this.results = (parent != null) ? new ResultWriter(clazz, parent) : new ResultWriter(clazz);
@@ -49,8 +50,10 @@ public class ThreadGroupRunner extends EmptyJUnit4xRunner
          // TODO: support non-static member classes?
          Object testObject = this.clazz.newInstance();
 
-         ThreadGroup threadGroup = this.clazz.getAnnotation(ThreadGroup.class);
-         for(int i = 0; i < threadGroup.loops(); i++)
+         int loops = 1;
+         if(this.clazz.isAnnotationPresent(Loops.class))
+            { loops = this.clazz.getAnnotation(Loops.class).value(); }
+         for(int i = 0; i < loops; i++)
          {
             try
             {
@@ -83,9 +86,16 @@ public class ThreadGroupRunner extends EmptyJUnit4xRunner
       {
          notifier.fireTestStarted(desc);
 
-         ThreadGroup threadGroup = testClass.getAnnotation(ThreadGroup.class);
-         ThreadPoolExecutor pool = (ThreadPoolExecutor) Executors.newFixedThreadPool(threadGroup.threads());
-         for(int i = 0; i < threadGroup.threads(); i++)
+         long rampUpPeriod = 0;
+         int threads = 1;
+         if(testClass.isAnnotationPresent(Threads.class))
+         {
+            Threads ann = testClass.getAnnotation(Threads.class);
+            rampUpPeriod = ann.rampUpPeriod();
+            threads = ann.value();
+         }
+         ThreadPoolExecutor pool = (ThreadPoolExecutor) Executors.newFixedThreadPool(threads);
+         for(int i = 0; i < threads; i++)
          {
             final String threadID = "thread-" + i;
             pool.execute(new Runnable()
@@ -114,18 +124,18 @@ public class ThreadGroupRunner extends EmptyJUnit4xRunner
                   }
                }
             });
-            Thread.sleep(threadGroup.rampUpPeriod() / threadGroup.threads());
+            Thread.sleep(rampUpPeriod / threads);
          }
          pool.shutdown();
-         if(!pool.awaitTermination(threadGroup.timeout(), TimeUnit.MILLISECONDS))
+         if(!pool.awaitTermination(Long.MAX_VALUE, TimeUnit.MILLISECONDS))
          {
             pool.shutdownNow();
-            throw new TimeoutException("Loop timed out after " + threadGroup.timeout() + "ms with " + pool.getActiveCount() + " incomplete sampler(s)!");
+            throw new TimeoutException("Loop timed out after " + Long.MAX_VALUE + " ms with " + pool.getActiveCount() + " incomplete tests!");
          }
+
+         notifier.fireTestFinished(desc);
       }
       catch(Throwable t)
          { notifier.fireTestFailure(new Failure(desc, t)); }
-      finally
-         { notifier.fireTestFinished(desc); }
    }
 }
