@@ -9,14 +9,16 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import org.junitbench.ThreadGroup;
-import org.junitbench.runners.ThreadGroupRunner;
+import org.junitbench.Loops;
+import org.junitbench.Threads;
+import org.junitbench.runners.JUnitBenchRunner;
 
 /**
  * @author Trevor Pounds
  */
-@RunWith(ThreadGroupRunner.class)
-@ThreadGroup(loops=10, threads=10)
+@RunWith(JUnitBenchRunner.class)
+@Loops(10)
+@Threads(10)
 public class SingleThreadGroupTest
 {
    private final static AtomicInteger afterCalls  = new AtomicInteger(0);

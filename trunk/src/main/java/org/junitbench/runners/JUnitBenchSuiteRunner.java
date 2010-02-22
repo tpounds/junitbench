@@ -16,11 +16,11 @@ import org.junitbench.internal.runners.EmptyJUnit4xRunner;
 /**
  * @author Trevor Pounds
  */
-public class ThreadGroupSuiteRunner extends EmptyJUnit4xRunner
+public class JUnitBenchSuiteRunner extends EmptyJUnit4xRunner
 {
    private Class<?> clazz = null;
 
-   public ThreadGroupSuiteRunner(final Class<?> clazz)
+   public JUnitBenchSuiteRunner(final Class<?> clazz)
       { this.clazz = clazz; }
 
    @Override public void run(final RunNotifier notifier)
@@ -44,7 +44,7 @@ public class ThreadGroupSuiteRunner extends EmptyJUnit4xRunner
                public void run()
                {
                   // TODO: synchronized notifier?
-                  Runner tgRunner = new ThreadGroupRunner(memberClass, clazz);
+                  Runner tgRunner = new JUnitBenchRunner(memberClass, clazz);
                   tgRunner.run(memberNotifier);
                }
             });
@@ -53,7 +53,7 @@ public class ThreadGroupSuiteRunner extends EmptyJUnit4xRunner
          if(!pool.awaitTermination(Long.MAX_VALUE, TimeUnit.MILLISECONDS))
          {
             pool.shutdownNow();
-            throw new TimeoutException(ThreadGroupSuiteRunner.class.getName() + " timed out after " + Long.MAX_VALUE + "ms with " + pool.getActiveCount() + " incomplete thread group(s)!");
+            throw new TimeoutException(JUnitBenchSuiteRunner.class.getName() + " timed out after " + Long.MAX_VALUE + "ms with " + pool.getActiveCount() + " incomplete thread group(s)!");
          }
       }
       catch(Throwable t)
