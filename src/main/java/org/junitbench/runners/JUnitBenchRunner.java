@@ -115,7 +115,7 @@ public class JUnitBenchRunner extends EmptyJUnit4xRunner
                      {
                         result.elapsedTime = System.nanoTime() - startTime;
                         result.endTimeStamp = System.currentTimeMillis();
-                        result.samplerID = testClass.getName() + "." + m.getName();
+                        result.methodID = testClass.getName() + "." + m.getName();
                         result.threadID = threadID;
                         result.iteration = iteration;
                         result.error = false;

@@ -68,7 +68,7 @@ public class ResultWriter
          StringBuilder sb = new StringBuilder(HEADER);
          for(Result r : ResultWriter.this.results)
          {
-            sb.append(r.samplerID + ",");
+            sb.append(r.methodID + ",");
             sb.append(r.threadID + ",");
             sb.append(r.iteration + ",");
             sb.append(r.elapsedTime + ",");
@@ -115,7 +115,7 @@ public class ResultWriter
          for(Result r : ResultWriter.this.results)
          {
             sb.append("<sampleResult");
-            sb.append(" lb=\"" + r.samplerID + "\"");
+            sb.append(" lb=\"" + r.methodID + "\"");
             sb.append(" tn=\"" + r.threadID + "-" + r.iteration + "\"");
             sb.append(" t=\"" + (r.endTimeStamp - r.startTimeStamp) + "\""); // JMeter only supports millisecond durations
             sb.append(" t_nano=\"" + r.elapsedTime + "\"");                  // write nano durations to custom attribute
@@ -142,7 +142,7 @@ public class ResultWriter
          for(Result r : ResultWriter.this.results)
          {
             // TODO: aggregate summary
-            out.println("ID: " + r.samplerID + ", threadID: " + r.threadID + ", iteration: " + r.iteration + ", elapsed time (ns): " + r.elapsedTime + ", error: " + r.error);
+            out.println("ID: " + r.methodID + ", threadID: " + r.threadID + ", iteration: " + r.iteration + ", elapsed time (ns): " + r.elapsedTime + ", error: " + r.error);
          }
       }
    }
