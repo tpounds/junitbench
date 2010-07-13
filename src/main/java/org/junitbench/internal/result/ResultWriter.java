@@ -3,20 +3,41 @@ package org.junitbench.internal.result;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.Collection;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.junitbench.Results;
 
-public class ResultWriter
+public final class ResultWriter
 {
-   Class<?>[]   classes = null;
-   List<Result> results = new LinkedList();
+   private final Collection<Result>           results = new ConcurrentLinkedQueue();
+   private final Collection<ResultWriterImpl> writers = new ConcurrentLinkedQueue();
+   // TODO: metadata
 
-   public ResultWriter(Class<?>... classes)
-      { this.classes = classes; }
+   public ResultWriter(final Class<?>... classes)
+   {
+      for(Class<?> clazz : classes)
+      {
+         if(clazz.isAnnotationPresent(Results.class))
+         {
+            Results results = clazz.getAnnotation(Results.class);
+            for(Results.Output output : results.output())
+            {
+               switch(output)
+               {
+                  case CSV:    writers.add(new CSVWriter(clazz.getName(), results.file())); break;
+                  case JAPEX:  /*TODO*/ break;
+                  case JMETER: writers.add(new JMeterWriter(clazz.getName(), results.file())); break;
+                  case NONE:   /* do nothing */ break;
+                  case STDERR: writers.add(new ConsoleWriter(System.err)); break;
+                  case STDOUT: writers.add(new ConsoleWriter(System.out)); break;
+               }
+            }
+         }
+      }
+   }
 
-   public void add(Result... results)
+   public void add(final Result... results)
    {
       for(Result r : results) 
          { this.results.add(r); }
@@ -24,32 +45,23 @@ public class ResultWriter
 
    public void output() throws Throwable
    {
-      for(Class<?> clazz : classes)
-      {
-         if(clazz.isAnnotationPresent(Results.CSV.class))
-            { new CSV(clazz).output(); }
-         if(clazz.isAnnotationPresent(Results.JMeter.class))
-            { new JMeter(clazz).output(); }
-         if(clazz.isAnnotationPresent(Results.STDERR.class))
-            { new STD(System.err).output(); }
-         if(clazz.isAnnotationPresent(Results.STDOUT.class))
-            { new STD(System.out).output(); }
-      }
+      for(ResultWriterImpl writer : writers)
+         { writer.output(); }
    }
 
-   protected interface ResultWriterImpl
+   private interface ResultWriterImpl
       { public void output() throws Throwable; }
 
-   protected class CSV implements ResultWriterImpl
+   private class CSVWriter implements ResultWriterImpl
    {
       private final static String HEADER = "Sampler ID,Thread ID,Iteration,Elapsed Time (ns),Elapsed Time (ms),Start Time (ms),End Time (ms),Error Occured?,Error Message\n";
 
       private File csv = null;
 
-      public CSV(Class<?> clazz)
+      public CSVWriter(final String className, final String file)
       {
-         csv = new File(clazz.getAnnotation(Results.CSV.class).value());
-         
+         csv = new File(file);
+
          if(csv.getName().endsWith(".csv"))
          {
             File parent = csv.getParentFile();
@@ -59,7 +71,7 @@ public class ResultWriter
          else
          {
             csv.mkdirs();
-            csv = new File(csv, clazz.getName() + ".csv");
+            csv = new File(csv, className + ".csv");
          }
       }
 
@@ -84,17 +96,17 @@ public class ResultWriter
       }
    }
 
-   protected class JMeter implements ResultWriterImpl
+   private class JMeterWriter implements ResultWriterImpl
    {
       private final static String START_ROOT_ELEMENT = "<testResults version=\"1.2\">";
       private final static String END_ROOT_ELEMENT   = "</testResults>";
 
       private File jtl = null;
 
-      public JMeter(Class<?> clazz)
+      public JMeterWriter(final String className, final String file)
       {
-         jtl = new File(clazz.getAnnotation(Results.JMeter.class).value());
-         
+         jtl = new File(file);
+
          if(jtl.getName().endsWith(".jtl"))
          {
             File parent = jtl.getParentFile();
@@ -104,7 +116,7 @@ public class ResultWriter
          else
          {
             jtl.mkdirs();
-            jtl = new File(jtl, clazz.getName() + ".jtl");
+            jtl = new File(jtl, className + ".jtl");
          }
       }
 
@@ -117,11 +129,12 @@ public class ResultWriter
             sb.append("<sampleResult");
             sb.append(" lb=\"" + r.methodID + "\"");
             sb.append(" tn=\"" + r.threadID + "-" + r.iteration + "\"");
-            sb.append(" t=\"" + (r.endTimeStamp - r.startTimeStamp) + "\""); // JMeter only supports millisecond durations
-            sb.append(" t_nano=\"" + r.elapsedTime + "\"");                  // write nano durations to custom attribute
+            sb.append(" t=\"" + (r.endTimeStamp - r.startTimeStamp) + "\""); // JMeter attribute for milli duration
+            sb.append(" t_nano=\"" + r.elapsedTime + "\"");                  // custom attribute for nano duration
             sb.append(" ts=\"" + r.endTimeStamp + "\"");
             sb.append(" s=\"" + r.error + "\"");
-            // TODO: what attribute should hold error message?
+            // TODO: what attribute do we write for r.errorMessage?
+            // TODO: what do we do with custom metadata?
             sb.append("/>");
          }
          sb.append(END_ROOT_ELEMENT);
@@ -130,19 +143,19 @@ public class ResultWriter
       }
    }
 
-   protected class STD implements ResultWriterImpl
+   private class ConsoleWriter implements ResultWriterImpl
    {
       private PrintStream out = null;
 
-      public STD(PrintStream out)
+      public ConsoleWriter(final PrintStream out)
          { this.out = out; }
 
       public void output()
       {
          for(Result r : ResultWriter.this.results)
          {
-            // TODO: aggregate summary
-            out.println("ID: " + r.methodID + ", threadID: " + r.threadID + ", iteration: " + r.iteration + ", elapsed time (ns): " + r.elapsedTime + ", error: " + r.error);
+            // TODO: aggregate summary?
+            out.println("ID: " + r.methodID + ", threadID: " + r.threadID + ", iteration: " + r.iteration + ", elapsed time (ns): " + r.elapsedTime + ", error: " + r.error + ", error message: " + r.errorMessage);
          }
       }
    }

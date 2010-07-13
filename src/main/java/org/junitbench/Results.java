@@ -1,5 +1,6 @@
 package org.junitbench;
 
+import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
@@ -9,36 +10,31 @@ import java.lang.annotation.Target;
 /**
  * @author Trevor Pounds
  */
-@Target({})
+@Inherited
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.TYPE})
 public @interface Results
 {
-   @Inherited
-   @Retention(RetentionPolicy.RUNTIME)
-   @Target({ElementType.TYPE})
-   public @interface CSV
-      { String value() default "."; }
+   /**
+    * Fields for specifying the output mechanism.
+    */
+   Output[] output() default { Output.NONE };
+   String   file()   default ".";
 
-   @Inherited
-   @Retention(RetentionPolicy.RUNTIME)
-   @Target({ElementType.TYPE})
-   public @interface JMeter
-      { String value() default "."; }
+   public enum Output { CSV, JAPEX, JMETER, NONE, STDERR, STDOUT }
 
-   @Inherited
-   @Retention(RetentionPolicy.RUNTIME)
-   @Target({ElementType.TYPE})
-   public @interface NONE
-      {}
+   /**
+    * Field for specifying user generated metadata that
+    * can be used to supplement the auto-generated results;
+    * particularly useful for post-processing requirements.
+    */
+   Metadata[] metadata() default {};
 
-   @Inherited
    @Retention(RetentionPolicy.RUNTIME)
-   @Target({ElementType.TYPE})
-   public @interface STDERR
-      {}
-
-   @Inherited
-   @Retention(RetentionPolicy.RUNTIME)
-   @Target({ElementType.TYPE})
-   public @interface STDOUT
-      {}
+   @Target({})
+   public @interface Metadata
+   {
+      String name();
+      String value();
+   }
 }

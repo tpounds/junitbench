@@ -1,7 +1,5 @@
 package org.junitbench.internal.result;
 
-import org.junitbench.TestMetadata;
-
 /**
  * A simple struct-like class that encapsulates the 
  * results from an annotated test method.
@@ -11,9 +9,9 @@ import org.junitbench.TestMetadata;
 public class Result
 {
    // test identification
-   public String  methodID;
-   public String  threadID;
-   public int     iteration;
+   public String methodID;
+   public String threadID;
+   public int    iteration;
 
    // test timing
    public long elapsedTime;    // total elapsed time in nanoseconds
@@ -23,6 +21,4 @@ public class Result
    // test errors
    public boolean error;
    public String  errorMessage;
-
-   public TestMetadata userMetadata;
 }
