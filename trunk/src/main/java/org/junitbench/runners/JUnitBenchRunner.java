@@ -110,7 +110,10 @@ public class JUnitBenchRunner extends EmptyJUnit4xRunner
                      try
                         { m.invoke(testObject, null); }
                      catch(Throwable t)
-                        { result.error = true; }
+                     {
+                        result.error = true;
+                        result.errorMessage = t.getMessage();
+                     }
                      finally
                      {
                         result.elapsedTime = System.nanoTime() - startTime;
