@@ -1,4 +1,4 @@
-# JUnitBench
+## JUnitBench
 Already using [JUnit](http://www.junit.org/) 4.x for testing? Adding performance tests to the mix has never been easier. JUnitBench is a set of JUnit 4.x extensions for benchmark and performance testing inspired by popular frameworks such as [Japex](https://japex.dev.java.net/), [JMeter](http://jakarta.apache.org/jmeter/), and [JUnitPerf](http://clarkware.com/software/JUnitPerf.html) without the overhead of maintaining separate code bases and configuration files. As an extension, performance tests can run alongside JUnit tests, utilizing the same infrastructure already provided by your toolchain (e.g. [Ant](http://ant.apache.org/manual/OptionalTasks/junit.html), [Maven](http://maven.apache.org/plugins/maven-surefire-plugin/), etc.).
 
 ## Requirements
